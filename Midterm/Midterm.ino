@@ -1,9 +1,13 @@
 /*
+Original
 Embedded System Midterm for Classes CDA4630 and CDA6316
 Based on ESP32 technology, NodeMCU-32S
 Dr. Bassem Alhalabi
 Florida Atlantic Univercity, Boca Raton
 Update: 2023-0928
+
+Updated: 2024.05.25
+by: Dwight Goins, MCT,RD, Graduate Student
 */
 
 // include files
@@ -128,6 +132,9 @@ void loop()
   // modify the code so that if you move your hand horizantally quickly the servo stops in its last position
   /* enter your comments here:
   */
+  
+  // All we have to do is check to see if the mapped Distance is greater than 0
+  // if so then we record it to the servo motor
   if (mapDistVal > 0)
     myservo.write(mapDistVal);
 
@@ -147,7 +154,10 @@ void loop()
   // change the code above to expand the range from 0.3-0.5 to the max and explore the changes. 
   /* enter your comments here:
   */
+
   // The following two lines designate a deadzone band for the blue led between 
+  // Below to get the Max value we just remove the 0.3 and 0.5 expression which removes
+  // the range checking and takes the values as is.
   if      ((lightVal > (baseLightVal ))) { digitalWrite(lightLed, HIGH); }  
   else if ((lightVal < (baseLightVal ))) { digitalWrite(lightLed, LOW);  }  
   
@@ -163,10 +173,11 @@ void loop()
   // modify the code above to reverse the effect of dimming, that is when you cover the light sensors the yellow led should be at brightes
   /* enter your comments here:
   */
+
   pwmVal = lightVal;                         // copy the light val
   pwmVal = min(pwmVal, 900);  // allow pwmVal value to be max at no light
   pwmVal = max(pwmVal, 100);            // allow pwmVal value to be min is 10
-  mapPwmVal = map(pwmVal, 100, 900, 245, 10);  
+  mapPwmVal = map(pwmVal, 100, 900, 245, 10);  // reverse the mapping
   analogWrite(lightPwmLed, mapPwmVal);
 
 
@@ -181,11 +192,16 @@ void loop()
   // change that value to a percentage of the baseline value based on the actual reading when you touch
    /* enter your comments here:
   */
+
+  // First thing I wanted to do was get collection of samples when I touch it:
   touchReadings[sampleIndex] = touchVal;
+
+  // Next I wanted to see what the average is
   // using an average to first see what the ranges are...
   int avgTouchReadings = calcAvgValues(sampleIndex, touchReadings);
 
-  // took the average and just choose .24 to .39 as the range from my average
+  // Next I took the highest and lowest averages and divided them by 1023 to get percentage values
+  // the values were 0.13 and 0.44 respectively
   double lowTouchRange = baseTouchVal * 0.13;
   double highTouchRange = baseTouchVal * 0.44;
 
@@ -219,14 +235,15 @@ void loop()
   // change the code and apply the deadzone band concept instead od threshold value, so that the led will stop flickering 
   /* enter your comments here:
   */
+
+  // Just choose a 4% - 8% range to determine when to turn the Red light on
+  // so it doesn't flip back and forth on specific temerature
   if (tempVal > 1.08 * baseTempVal) { digitalWrite(tempLed, HIGH);  } 
-  
   if (tempVal < 1.04 * baseTempVal) { digitalWrite(tempLed, LOW);   }
   
 
-
   // ---------- printing on serial monitor
-  
+ 
   Serial.print("Distance Base:\t"); Serial.print(baseDistVal);   Serial.print("\tDistance Map :\t"); Serial.println(mapDistVal);
 
   Serial.print("Light Base:  \t"); Serial.print(baseLightVal); Serial.print("\tMapped Value:\t");
@@ -246,6 +263,10 @@ void loop()
   // change the delay value (10, 100, 500 1000), and state you observation on the various loop delays
   /* enter your comments here:
   */
+  // When choosing 10, the touch sensor doesn't work well it loops too fast. Lights blink too fast.
+  // when choosing 500, you have to hold down too long for the touch sensor to work, and the light
+  // sensor takes a long time to be affected.
+  // 250 seemed just like a good enough time for all sensors to work well.
   delay(250);
 
 
