@@ -8,6 +8,10 @@ Update: 2023-0928
 
 Updated: 2024.05.25
 by: Dwight Goins, MCT,RD, Graduate Student
+
+Video Accompanying Project:
+https://youtu.be/ueXpcHeXfcc?si=wkf0O5Zj8lw5V81l
+
 */
 
 // include files
@@ -48,6 +52,11 @@ int touchReadings[BUFFER_SIZE];
 
 bool toggleTouch = false;
 
+// micConfiguration
+const int micPin = 18;
+int lastSoundState = HIGH;  // the previous state from the input pin
+int currentSoundState;      // the current reading from the input pin
+
 // ---------- Main functions 
 
 // setup function: init all connections
@@ -63,6 +72,7 @@ void setup()
   pinMode(lightPin, INPUT);
   pinMode(touchPin, INPUT);
   pinMode(tempPin, INPUT);
+  pinMode(micPin, INPUT);
 
   // set output pins
   pinMode(touchLed, OUTPUT);
@@ -242,6 +252,17 @@ void loop()
   if (tempVal < 1.04 * baseTempVal) { digitalWrite(tempLed, LOW);   }
   
 
+  // Read the microphone Sound state
+  currentSoundState = digitalRead(micPin);
+  
+  
+  if (lastSoundState == HIGH && currentSoundState == LOW)
+    Serial.println("The sound has been detected");
+  else if (lastSoundState == LOW && currentSoundState == HIGH)
+    Serial.println("The sound has disappeared");
+
+  // save the the last state
+  lastSoundState = currentSoundState;
   // ---------- printing on serial monitor
  
   Serial.print("Distance Base:\t"); Serial.print(baseDistVal);   Serial.print("\tDistance Map :\t"); Serial.println(mapDistVal);
