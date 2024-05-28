@@ -14,8 +14,15 @@ https://youtu.be/ueXpcHeXfcc?si=wkf0O5Zj8lw5V81l
 
 */
 
+// if want Bluetooth, uncomment the following line
+// #define BLUETOOTH "ESP32BT"
+
 // include files
 #include <ESP32_Servo.h>
+
+// I2S driver
+#include <driver/i2s.h>
+ 
 
 // class obects
 Servo myservo;  // using class servo to create servo object, myservo, to control a servo motor
@@ -30,6 +37,15 @@ const int distPin = 35;         // ir analog pin
 const int lightPin = 36;      // light sensor pins
 const int touchPin = 34;      // touch sensor pin
 const int tempPin = 39;       // temperature sensor pin
+
+
+  #define I2S_WS               18
+  #define I2S_SD               27
+  #define I2S_SCK              26
+  #define I2S_SAMPLE_BIT_COUNT 16
+  #define SOUND_SAMPLE_RATE    8000
+  #define SOUND_CHANNEL_COUNT  1
+  #define I2S_PORT             I2S_NUM_0
 
 // ---------- defining pins for outputs 
 const int touchLed = 25;      // touch green led
@@ -53,9 +69,51 @@ int touchReadings[BUFFER_SIZE];
 bool toggleTouch = false;
 
 // micConfiguration
-const int micPin = 18;
+const int digitalMicPin = 18;
+const int analogMicPin = 26;
 int lastSoundState = HIGH;  // the previous state from the input pin
-int currentSoundState;      // the current reading from the input pin
+double currentSoundState;      // the current reading from the input pin
+
+// name of recorded WAV file; since only a single name; hence new one will always overwrite old one
+const char* SoundName = "recorded_sound";
+
+
+// For audio recording
+const int I2S_DMA_BUF_COUNT = 8;
+const int I2S_DMA_BUF_LEN = 1024;
+
+
+#if I2S_SAMPLE_BIT_COUNT == 32
+  const int StreamBufferNumBytes = 512;
+  const int StreamBufferLen = StreamBufferNumBytes / 4;
+  int32_t StreamBuffer[StreamBufferLen];
+#else
+  #if SOUND_SAMPLE_RATE == 16000
+    // for 16 bits ... 16000 sample per second (32000 bytes per second; since 16 bits per sample) ==> 512 bytes = 16 ms per read
+    const int StreamBufferNumBytes = 512;
+  #else
+    // for 16 bits ... 8000 sample per second (16000 bytes per second; since 16 bits per sample) ==> 256 bytes = 16 ms per read
+    const int StreamBufferNumBytes = 256;
+  #endif  
+  const int StreamBufferLen = StreamBufferNumBytes / 2;
+  int16_t StreamBuffer[StreamBufferLen];
+#endif
+
+// sound sample (16 bits) amplification
+const int MaxAmplifyFactor = 20;
+const int DefAmplifyFactor = 10;
+
+
+esp_err_t i2s_install();
+esp_err_t i2s_setpin();
+ 
+int what = 1;  // 1: mic; 2: record; 3: play
+bool started = false;
+int amplifyFactor = DefAmplifyFactor;//10;
+int soundChunkId = -1; // when started sending sound [chunk], the allocated "chunk id"
+long streamingMillis = 0;
+int streamingTotalSampleCount = 0;
+
 
 // ---------- Main functions 
 
@@ -72,7 +130,8 @@ void setup()
   pinMode(lightPin, INPUT);
   pinMode(touchPin, INPUT);
   pinMode(tempPin, INPUT);
-  pinMode(micPin, INPUT);
+  pinMode(digitalMicPin, INPUT);
+  pinMode(analogMicPin, INPUT);
 
   // set output pins
   pinMode(touchLed, OUTPUT);
@@ -98,10 +157,25 @@ void setup()
   digitalWrite(lightPwmLed, LOW);
   delay(1000);  // wait for 1000 ms
 
-  // setup Data Sample Buffer
-
-  // start the serial port
+   // start the serial port
   Serial.begin(115200);
+
+ // setup Data Sample Buffer
+ // set up I2S
+  if (i2s_install() != ESP_OK) {
+    Serial.println("XXX failed to install I2S");
+  }
+  if (i2s_setpin() != ESP_OK) {
+    Serial.println("XXX failed to set I2S pins");
+  }
+  if (i2s_zero_dma_buffer(I2S_PORT) != ESP_OK) {
+    Serial.println("XXX failed to zero I2S DMA buffer");
+  }
+  if (i2s_start(I2S_PORT) != ESP_OK) {
+    Serial.println("XXX failed to start I2S");
+  }
+
+  Serial.println("... DONE SETUP MIC");
 
   // read sensors values and save them as baseline values
   baseLightVal = analogRead(lightPin);  // room light
@@ -253,29 +327,85 @@ void loop()
   
 
   // Read the microphone Sound state
-  currentSoundState = digitalRead(micPin);
+  currentSoundState = analogRead(analogMicPin) ;
+  float voltage = currentSoundState *  (5.0 / 1023.0); 
+  int Digital = digitalRead (digitalMicPin) ;
   
-  
-  if (lastSoundState == HIGH && currentSoundState == LOW)
-    Serial.println("The sound has been detected");
-  else if (lastSoundState == LOW && currentSoundState == HIGH)
-    Serial.println("The sound has disappeared");
+  // if (lastSoundState == HIGH && currentSoundState == LOW)
+  //   Serial.println("The sound has been detected");
+  // else if (lastSoundState == LOW && currentSoundState == HIGH)
+  //   Serial.println("The sound has disappeared");
 
   // save the the last state
   lastSoundState = currentSoundState;
   // ---------- printing on serial monitor
  
-  Serial.print("Distance Base:\t"); Serial.print(baseDistVal);   Serial.print("\tDistance Map :\t"); Serial.println(mapDistVal);
+ // read I2S data and place in data buffer
+  size_t bytesRead = 0;
+  esp_err_t result = i2s_read(I2S_PORT, &StreamBuffer, StreamBufferNumBytes, &bytesRead, portMAX_DELAY);
+ 
+  int samplesRead = 0;
+#if I2S_SAMPLE_BIT_COUNT == 32
+  int16_t sampleStreamBuffer[StreamBufferLen];
+#else
+  int16_t *sampleStreamBuffer = StreamBuffer;
+#endif
+  if (result == ESP_OK) {
+#if I2S_SAMPLE_BIT_COUNT == 32
+      samplesRead = bytesRead / 4;  // 32 bit per sample
+#else
+      samplesRead = bytesRead / 2;  // 16 bit per sample
+#endif    
+    if (samplesRead > 0) {
+      // find the samples mean ... and amplify the sound sample, by simply multiple it by some "amplify factor"
+      float sumVal = 0;
+      for (int i = 0; i < samplesRead; ++i) {
+        int32_t val = StreamBuffer[i];
+#if I2S_SAMPLE_BIT_COUNT == 32
+        val = val / 0x0000ffff;
+#endif
+        if (amplifyFactor > 1) {
+          val = amplifyFactor * val;
+          if (val > 32700) {
+            val = 32700;
+          } else if (val < -32700) {
+            val = -32700;
+          }
+          //StreamBuffer[i] = val;
+        }
+        sampleStreamBuffer[i] = val;
+        sumVal += val;
+      }
+      float meanVal = sumVal / samplesRead;
+      Serial.print("Mean Value:\t"); Serial.println(meanVal, 4);
+      
+    }
+  }
 
-  Serial.print("Light Base:  \t"); Serial.print(baseLightVal); Serial.print("\tMapped Value:\t");
-  Serial.print(mapPwmVal);  Serial.print("\tLight Read:  \t"); Serial.println(lightVal); 
+  // Serial.print("Distance Base:\t"); Serial.print(baseDistVal);   Serial.print("\tDistance Map :\t"); Serial.println(mapDistVal);
 
-  Serial.print("Touch base:  \t"); Serial.print(baseTouchVal); Serial.print("\tAvg value:   \t");
-  Serial.print(avgTouchReadings);  Serial.print("\tTouch Read:  \t"); Serial.println(touchVal);
+  // Serial.print("Light Base:  \t"); Serial.print(baseLightVal); Serial.print("\tMapped Value:\t");
+  // Serial.print(mapPwmVal);  Serial.print("\tLight Read:  \t"); Serial.println(lightVal); 
 
-  Serial.print("Temp base:   \t"); Serial.print(baseTempVal);   Serial.print("\tTemp Read:\t"); Serial.println(tempVal);
+  // Serial.print("Touch base:  \t"); Serial.print(baseTouchVal); Serial.print("\tAvg value:   \t");
+  // Serial.print(avgTouchReadings);  Serial.print("\tTouch Read:  \t"); Serial.println(touchVal);
+
+  // Serial.print("Temp base:   \t"); Serial.print(baseTempVal);   Serial.print("\tTemp Read:\t"); Serial.println(tempVal);
   
-
+//   Serial.print("Current Sound State:\t"); Serial.println(currentSoundState);
+// //...  and issued at this point
+//   Serial.print  ("Analog voltage value:");  Serial.print (voltage,  4) ;   Serial.print  ("V, ");
+//   Serial.print ("Limit value:") ;
+  
+//   if  (Digital == 1) 
+//   {
+//       Serial.println ("reached");
+//   }
+//   else
+//   {
+//       //Serial.println (" not yet reached");
+//   }
+//   Serial.println  ( " ----------------------------------------------------------------") ;
   // ---------- the mian loop dealy
   // here we are usning a loop delay to slow down the update rate of the analog input
   //delay(100);  // wait for 100ms, the invinit loop interval 
@@ -288,7 +418,7 @@ void loop()
   // when choosing 500, you have to hold down too long for the touch sensor to work, and the light
   // sensor takes a long time to be affected.
   // 250 seemed just like a good enough time for all sensors to work well.
-  delay(250);
+  //delay(200);
 
 
   // used for caculating averages inside an array
@@ -297,4 +427,34 @@ void loop()
   sampleIndex++;
   if (sampleIndex >= BUFFER_SIZE  )
     sampleIndex = 0;
+}
+
+
+esp_err_t i2s_install() {
+  uint32_t mode = I2S_MODE_MASTER | I2S_MODE_RX;
+#if I2S_SCK == I2S_PIN_NO_CHANGE
+    mode |= I2S_MODE_PDM;
+#endif    
+  const i2s_config_t i2s_config = {
+    .mode = i2s_mode_t(mode/*I2S_MODE_MASTER | I2S_MODE_RX*/),
+    .sample_rate = SOUND_SAMPLE_RATE,
+    .bits_per_sample = i2s_bits_per_sample_t(I2S_SAMPLE_BIT_COUNT),
+    .channel_format = I2S_CHANNEL_FMT_ONLY_LEFT,
+    .communication_format = i2s_comm_format_t(I2S_COMM_FORMAT_STAND_I2S),
+    .intr_alloc_flags = 0,
+    .dma_buf_count = I2S_DMA_BUF_COUNT/*8*/,
+    .dma_buf_len = I2S_DMA_BUF_LEN/*1024*/,
+    .use_apll = false
+  };
+  return i2s_driver_install(I2S_PORT, &i2s_config, 0, NULL);
+}
+ 
+esp_err_t i2s_setpin() {
+  const i2s_pin_config_t pin_config = {
+    .bck_io_num = I2S_SCK,
+    .ws_io_num = I2S_WS,   
+    .data_out_num = I2S_PIN_NO_CHANGE/*-1*/,
+    .data_in_num = I2S_SD
+  };
+  return i2s_set_pin(I2S_PORT, &pin_config);
 }
