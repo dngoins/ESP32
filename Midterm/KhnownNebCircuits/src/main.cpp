@@ -14,16 +14,46 @@ https://youtu.be/ueXpcHeXfcc?si=wkf0O5Zj8lw5V81l
 
 */
 
-// if want Bluetooth, uncomment the following line
-// #define BLUETOOTH "ESP32BT"
+#include "Arduino.h"
+#include <ArduinoJson.h>
 
 // include files
-#include <ESP32_Servo.h>
+#include "ESP32_Servo.h"
+
+// WiFi
+#include <WiFiClientSecure.h>
+#include <HTTPClient.h>
+
 
 // I2S driver
 #include <driver/i2s.h>
  
+ // Web sockets
+#include <WebSocketsClient.h>
 
+ 
+  #define I2S_WS               13
+  #define I2S_SD               27
+  #define I2S_SCK              34
+  #define I2S_SAMPLE_BIT_COUNT 16
+  #define SOUND_SAMPLE_RATE    44100
+  #define SOUND_CHANNEL_COUNT  1
+  #define I2S_PORT             I2S_NUM_0
+
+ 
+ // Function to extract the path from a URL
+const char* extractPathFromUrl(const char* url);
+void websocketConnect();
+void toggle();
+void processVoiceCommand(const char* command) ;
+void webSocketEvent(WStype_t type, uint8_t* payload, size_t length);
+void connect();
+
+// I2S functions
+esp_err_t i2s_install();
+esp_err_t i2s_setpin();
+   
+ 
 // class obects
 Servo myservo;  // using class servo to create servo object, myservo, to control a servo motor
 // Download the library from: https://github.com/jkb-git/ESP32Servo (Press on Code, and download as zip).
@@ -31,67 +61,28 @@ Servo myservo;  // using class servo to create servo object, myservo, to control
 // Put the folder in Document>Arduino>libraries
 
 
-// ---------- defining pins for inputs 
-const int servoPin = 23;      // servo pin
-const int distPin = 35;         // ir analog pin
-const int lightPin = 36;      // light sensor pins
-const int touchPin = 34;      // touch sensor pin
-const int tempPin = 39;       // temperature sensor pin
-
-
-  #define I2S_WS               18
-  #define I2S_SD               27
-  #define I2S_SCK              26
-  #define I2S_SAMPLE_BIT_COUNT 16
-  #define SOUND_SAMPLE_RATE    44100
-  #define SOUND_CHANNEL_COUNT  1
-  #define I2S_PORT             I2S_NUM_0
-
-// ---------- defining pins for outputs 
-const int touchLed = 25;      // touch green led
-const int lightLed = 32;      // ligh blue led
-const int lightPwmLed = 22;   // light yellow led - pwm
-const int tempLed = 33;       // temperature red led
-const int BUFFER_SIZE = 10;
-
-//  ---------- sensor values
-int touchVal = 0, baseTouchVal=0;
-int lightVal = 0, baseLightVal = 0, pwmVal=0, mapPwmVal=0;
-int tempVal = 0, baseTempVal = 0;
-int distVal = 0, baseDistVal=0, mapDistVal =0;
-int flag=0;
-int lastPos = 0;
-bool handQuick = false;
-int sampleIndex = 0;
-int roomLightReadings[BUFFER_SIZE];
-int touchReadings[BUFFER_SIZE];
-
-bool toggleTouch = false;
-
-// WiFi
-#include <WiFiClientSecure.h>
 
 // Replace with your network credentials
-const char* WIFI_SSID     = "GoinsNetwork"; //fake - replace
-const char* WIFI_PASS = "O0O0O0O0"; // fake - replace
+const char* WIFI_SSID     = "GoinsNetwork"; // fake SSID - replace
+const char* WIFI_PASS = "O0O0O0O0"; // fake password - replace
 
 WiFiClientSecure client;
 
-
 // Web Socket
 // Include the Web Socket library
-#include <WebSocketsClient.h>
 
 // Define the Azure Speech to Text Web Socket
 WebSocketsClient webSocket;
-const char* websockets_server = "wss://eastus2.cognitiveservices.azure.com/";
 
+// http://199.199.1.155:7136/api/negotiate
+const char* negotiate_url = "http://199.199.1.155:7136/api/negotiate";
 
+HTTPClient http;
 
 
 // micConfiguration
 const int digitalMicPin = 18;
-const int analogMicPin = 26;
+const int analogMicPin = 34;
 int lastSoundState = HIGH;  // the previous state from the input pin
 double currentSoundState;      // the current reading from the input pin
 
@@ -124,10 +115,6 @@ const int I2S_DMA_BUF_LEN = 1024;
 const int MaxAmplifyFactor = 20;
 const int DefAmplifyFactor = 10;
 
-
-esp_err_t i2s_install();
-esp_err_t i2s_setpin();
- 
 int what = 1;  // 1: mic; 2: record; 3: play
 bool started = false;
 int amplifyFactor = DefAmplifyFactor;//10;
@@ -136,7 +123,226 @@ long streamingMillis = 0;
 int streamingTotalSampleCount = 0;
 
 
+// ---------- defining pins for inputs 
+const int servoPin = 23;      // servo pin
+const int distPin = 35;         // ir analog pin
+const int lightPin = 36;      // light sensor pins
+const int touchPin = 34;      // touch sensor pin
+const int tempPin = 39;       // temperature sensor pin
+
+// ---------- defining pins for outputs 
+const int touchLed = 25;      // touch green led
+const int lightLed = 32;      // ligh blue led
+const int lightPwmLed = 22;   // light yellow led - pwm
+const int tempLed = 33;       // temperature red led
+const int BUFFER_SIZE = 10;
+const int LED_PIN = 27;
+const int TEMP_PIN = 39;
+bool ledState = false;
+
+//  ---------- sensor values
+int touchVal = 0, baseTouchVal=0;
+int lightVal = 0, baseLightVal = 0, pwmVal=0, mapPwmVal=0;
+int tempVal = 0, baseTempVal = 0;
+int distVal = 0, baseDistVal=0, mapDistVal =0;
+int flag=0;
+int lastPos = 0;
+bool handQuick = false;
+int sampleIndex = 0;
+int roomLightReadings[BUFFER_SIZE];
+int touchReadings[BUFFER_SIZE];
+
+bool toggleTouch = false;
+
 // ---------- Main functions 
+void processVoiceCommand(const char* command) {
+  Serial.print("Command received: ");
+  Serial.println(command);
+
+  if (strcmp(command, "[iot] toggle") == 0) {
+    toggle();  
+  }
+
+  if (strcmp(command, "[iot] unlock") == 0) {
+    toggle();  
+  }
+    
+  if (strcmp(command, "[iot] lock") == 0) {
+    toggle();  
+  }
+
+  if (strcmp(command, "[iot] fanon") == 0) {
+    toggle();  
+  }
+  
+  if (strcmp(command, "[iot] fanoff") == 0) {
+    toggle();  
+  }
+
+}
+
+void webSocketEvent(WStype_t type, uint8_t* payload, size_t length) {
+
+    Serial.print("Socket Event Type: "); Serial.print(type);
+    Serial.print(" Payload Length: "); Serial.print(length);
+    Serial.print(" Payload: "); Serial.println((char*)payload);
+
+    switch (type) {
+        case WStype_DISCONNECTED:
+            Serial.println("WebSocket disconnected...");
+           // websocketConnect();
+            break;
+        case WStype_CONNECTED:
+            Serial.println("WebSocket connected");
+            break;
+        case WStype_BIN:
+            // Handle incoming WebSocket binary data (audio stream)
+            Serial.println("Received binary data");
+            break;
+        case WStype_TEXT:
+            // Handle incoming WebSocket data (payload)
+            Serial.print("Received data: ");
+            Serial.println((char*)payload);
+            processVoiceCommand((char*)payload);
+            break;
+        // Add other cases as needed (PING, PONG, etc.)
+        case WStype_ERROR:
+            Serial.println("WebSocket error");
+            break;
+        case WStype_FRAGMENT_TEXT_START:
+            Serial.println("Fragment text start");
+            break;  
+        case WStype_FRAGMENT_BIN_START:
+            Serial.println("Fragment binary start");
+            break;    
+        case WStype_FRAGMENT: 
+            Serial.println("Fragment");
+            break;  
+        case WStype_FRAGMENT_FIN: 
+            Serial.println("Fragment fin");
+            break;  
+        case WStype_PING:
+            Serial.println("Ping");
+            break;  
+        case WStype_PONG:
+            Serial.println("Pong");
+            break;  
+        default:
+            Serial.println("Other");
+            break;
+        
+    }
+}
+
+void connect() {
+
+  // Connect to Wifi.
+  Serial.println();
+  Serial.println();
+  Serial.print("Connecting to ");
+  Serial.println(WIFI_SSID);
+
+  WiFi.begin(WIFI_SSID, WIFI_PASS);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+    Serial.print(".");
+  }
+
+  Serial.println("");
+  Serial.println("WiFi connected");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
+  Serial.println("WiFi - Connected!");
+  Serial.println("This device is now ready for use!");
+}
+
+void websocketConnect()
+{
+   if (WiFi.status() == WL_CONNECTED) {
+       HTTPClient http;
+       http.begin(negotiate_url);
+       
+       int httpCode = http.GET();
+       Serial.print("HTTP CODE: "); Serial.println(httpCode);
+
+       if (httpCode == HTTP_CODE_OK) {
+            String response = http.getString(); 
+            Serial.print("Response: "); Serial.println(response);
+
+            // the response looks like this: 
+            /*
+              {
+    "baseUrl": "wss://knowncircuits.webpubsub.azure.com/client/hubs/notification",
+    "url": "wss://knowncircuits.webpubsub.azure.com:443/client/hubs/notification?access_token=blahhh",
+    "AccessToken": "blahhh"
+}
+            */
+           // Extract the url from the response
+            DynamicJsonDocument doc(1024);
+            deserializeJson(doc, response);
+            const char* baseUrl = doc["baseUrl"];
+            const char* accessToken = doc["AccessToken"];
+            const char* url = doc["url"];
+            Serial.print("Base URL: "); Serial.println(baseUrl);
+            Serial.print("Access Token: "); Serial.println(accessToken);
+            Serial.print("URL: "); Serial.println(url);
+
+            // Create a mutable copy of the URL
+            char urlCopy[strlen(url) + 1];
+            strcpy(urlCopy, url);
+
+            // Extract the hostname using strtok
+            // now extract the host name from the dynamic url
+            
+            strtok(urlCopy, "/");           
+            char* fakehostName2 = strtok(NULL, "/");
+            const char* hostName = strtok(fakehostName2, ":");
+
+            Serial.print("Host Name: "); Serial.println(hostName);
+            
+            // extract the port number as int from the dynamic url
+            const char* portStr = strtok(NULL, ":");
+            //const char* portStr = strtok(NULL, "/");
+            int port = atoi(portStr);            
+            Serial.print("Port: "); Serial.println(port);
+
+            // extract the path after the first / from the dynamic url
+            // I need to extract the path after the port :443 in the wss url above and include the query string as well
+           
+            // extract the path in the url and extract all content after that and store it in path variable
+            const char* _path = extractPathFromUrl(url);
+            const char * path = extractPathFromUrl(_path);
+
+            Serial.print("Path: "); Serial.println(path);
+            
+
+            
+            // Initialize Websocket
+            // Setup WebSocket event Handlers
+            webSocket.onEvent(webSocketEvent);
+
+
+            // Connect to the WebSocket server
+            webSocket.beginSSL(hostName, port, path);
+	
+	          // use HTTP Basic Authorization this is optional remove if not needed
+	          //webSocket.setExtraHeaders
+
+            // try ever 5000 again if connection has failed
+            webSocket.setReconnectInterval(5000);
+            
+         }
+    }
+  
+}
+
+
+void toggle() {
+  Serial.println("Toggling LED.");
+  ledState = !ledState;
+  digitalWrite(lightLed, ledState ? HIGH : LOW);
+}
 
 // setup function: init all connections
 void setup() 
@@ -178,10 +384,12 @@ void setup()
   digitalWrite(lightPwmLed, LOW);
   delay(1000);  // wait for 1000 ms
 
-   // start the serial port
+  // setup Data Sample Buffer
+
+  // start the serial port
   Serial.begin(115200);
 
- // setup Data Sample Buffer
+// setup Data Sample Buffer
  // set up I2S
   if (i2s_install() != ESP_OK) {
     Serial.println("XXX failed to install I2S");
@@ -197,6 +405,9 @@ void setup()
   }
 
   Serial.println("... DONE SETUP MIC");
+
+  connect();
+  websocketConnect();
 
   // read sensors values and save them as baseline values
   baseLightVal = analogRead(lightPin);  // room light
@@ -223,6 +434,26 @@ int calcAvgValues(const int size, const int samples[])
 
 void loop() 
 {
+
+  // wifi
+  bool toReconnect = false;
+
+  if (WiFi.status() != WL_CONNECTED) {
+    Serial.println("Disconnected from WiFi");
+    toReconnect = true;
+  }
+
+  // if (!device.connected()) {
+  //   Serial.println("Disconnected from MQTT");
+  //   Serial.println(device.mqttClient.state());
+  //   toReconnect = true;
+  // }
+
+  if (toReconnect) {
+    connect();
+  }
+
+  webSocket.loop();
 
   // ---------- distance sensor controls
   // read the distance sensor, set the min/max limits, and map to full range 0-180 
@@ -346,7 +577,6 @@ void loop()
   if (tempVal > 1.08 * baseTempVal) { digitalWrite(tempLed, HIGH);  } 
   if (tempVal < 1.04 * baseTempVal) { digitalWrite(tempLed, LOW);   }
   
-
   // Read the microphone Sound state
   currentSoundState = analogRead(analogMicPin) ;
   float voltage = currentSoundState *  (5.0 / 1023.0); 
@@ -398,11 +628,14 @@ void loop()
         sumVal += val;
       }
       float meanVal = sumVal / samplesRead;
-      Serial.print("Mean Value:\t"); Serial.println(meanVal, 4);
+    //  Serial.print("Mean Value:\t"); Serial.println(meanVal, 4);
       
     }
   }
 
+
+  // ---------- printing on serial monitor
+ 
   // Serial.print("Distance Base:\t"); Serial.print(baseDistVal);   Serial.print("\tDistance Map :\t"); Serial.println(mapDistVal);
 
   // Serial.print("Light Base:  \t"); Serial.print(baseLightVal); Serial.print("\tMapped Value:\t");
@@ -413,20 +646,7 @@ void loop()
 
   // Serial.print("Temp base:   \t"); Serial.print(baseTempVal);   Serial.print("\tTemp Read:\t"); Serial.println(tempVal);
   
-//   Serial.print("Current Sound State:\t"); Serial.println(currentSoundState);
-// //...  and issued at this point
-//   Serial.print  ("Analog voltage value:");  Serial.print (voltage,  4) ;   Serial.print  ("V, ");
-//   Serial.print ("Limit value:") ;
-  
-//   if  (Digital == 1) 
-//   {
-//       Serial.println ("reached");
-//   }
-//   else
-//   {
-//       //Serial.println (" not yet reached");
-//   }
-//   Serial.println  ( " ----------------------------------------------------------------") ;
+
   // ---------- the mian loop dealy
   // here we are usning a loop delay to slow down the update rate of the analog input
   //delay(100);  // wait for 100ms, the invinit loop interval 
@@ -439,8 +659,11 @@ void loop()
   // when choosing 500, you have to hold down too long for the touch sensor to work, and the light
   // sensor takes a long time to be affected.
   // 250 seemed just like a good enough time for all sensors to work well.
-  //delay(200);
+  //delay(250);
 
+
+  // Chunk size for audio stream and send
+  //webSocket.sendBIN(audioChunk, chunkSize);
 
   // used for caculating averages inside an array
   // use the below to increase the index counter and 
@@ -460,7 +683,7 @@ esp_err_t i2s_install() {
     .mode = i2s_mode_t(mode/*I2S_MODE_MASTER | I2S_MODE_RX*/),
     .sample_rate = SOUND_SAMPLE_RATE,
     .bits_per_sample = i2s_bits_per_sample_t(I2S_SAMPLE_BIT_COUNT),
-    .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,
+    .channel_format = I2S_CHANNEL_FMT_ONLY_LEFT,
     .communication_format = i2s_comm_format_t(I2S_COMM_FORMAT_STAND_I2S),
     .intr_alloc_flags = 0,
     .dma_buf_count = I2S_DMA_BUF_COUNT/*8*/,
@@ -478,4 +701,23 @@ esp_err_t i2s_setpin() {
     .data_in_num = I2S_SD
   };
   return i2s_set_pin(I2S_PORT, &pin_config);
+}
+
+// Function to extract the path from a URL
+const char* extractPathFromUrl(const char* url) {
+    
+    // Find the position of ":"
+    const char* portStart = strstr(url, ":");
+    if (!portStart) {
+      return nullptr;
+    }
+
+    // Find the position of "/"
+    const char* pathStart = strstr(portStart, "/");
+    if (!pathStart) {
+        return nullptr;
+    }
+    
+    // Extract the path (including query string)
+    return pathStart;
 }
