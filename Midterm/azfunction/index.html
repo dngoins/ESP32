@@ -1,0 +1,86 @@
+<html>
+<body>
+    <h1>Azure Web PubSub Notification</h1>
+    <input id="message" placeholder="Type to chat..." />
+    <div id="messages"></div>
+
+    <script>
+
+        (async function () {
+            let itr = 1;
+            let messages = document.querySelector('#messages');
+            let res = await fetch(`${window.location.origin}/api/negotiate`);
+            let url = await res.json();
+            let ws = new WebSocket(url.url);
+            console.log('WSS Url: ' + url.url);
+            ws.onopen = () => console.log('connected');
+
+            ws.onmessage = event => {
+                let m = document.createElement('p');
+                m.innerText = event.data;
+                messages.appendChild(m);
+
+                //ws.send("Test Send Data");
+
+            };
+
+            ws.onerror = function (event) {
+                console.error("WebSocket error observed:", event);
+            };
+
+            let message = document.querySelector("#message");
+            message.addEventListener("keypress", (e) => {
+                if (e.charCode !== 13) return;
+                if (ws.readyState !== 1) {
+                    console.error('WebSocket is not open: readyState = ' + ws.readyState);
+                    ws = new WebSocket(url.url);
+                    ws.onopen = () => console.log('connected');
+                    ws.onerror = function (event) {
+                        console.error("WebSocket error observed:", event);
+                    };
+                    ws.onmessage = event => {
+                        let m = document.createElement('p');
+                        m.innerText = event.data;
+                        messages.appendChild(m);
+
+                        //ws.send("Test Send Data");
+
+                    };
+                    return;
+                }
+
+                // if (message.value == 'toggleSound') {
+                //         ws.binaryType = '';
+                //         ws.send(message.value);
+                //     fetch('/api/audioSample')
+                //         .then(response => response.arrayBuffer())
+                //         .then(buffer => {
+                //             // Wait for the WebSocket to be open before sending the data
+                //             // Ensure binary data is sent
+                //             ws.binaryType = 'arraybuffer';
+
+                //             // Define the size of each chunk
+                //             const chunkSize = 1024; // Adjust this value as needed
+
+                //             // Send the file in chunks
+                //             for (let i = 0; i < buffer.byteLength; i += chunkSize) {
+                //                 let end = Math.min(i + chunkSize, buffer.byteLength);
+                //                 let chunk = buffer.slice(i, end);
+                //                 ws.send(chunk);
+                //             }
+                //         })
+                //         .catch(err => console.error(err));
+                // }
+                // else
+                //{
+                    ws.binaryType = '';
+                    ws.send(message.value);
+                //}
+                message.value = "";
+            });
+
+        })();
+
+    </script>
+</body>
+</html>

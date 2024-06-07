@@ -1,0 +1,16 @@
+{
+  "profiles": {
+    "azfunction": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7136",
+      "launchBrowser": false,
+      "AIServicesEndpoint": "",
+      "AIServicesKey": "",
+      "CLU_PROJECT_NAME": "",
+      "CLU_DEPLOYMENT_NAME": "",
+      "SPEECH_SUB_KEY": "",
+      "SPEECH_REGION": "",
+      "SPEECH_ENDPOINT": ""
+    }
+  }
+}
