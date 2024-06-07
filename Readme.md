@@ -19,7 +19,7 @@ The system consists of various sensors and devices, including light sensors, mon
 
 During development, several challenges emerged. Integrating multiple sensors and devices required meticulous coordination and debugging. Managing memory limitations on the Arduino and ensuring reliable Wi-Fi connectivity were critical hurdles. Additionally, refining the voice recognition system to accurately interpret commands was a complex task, demanding precise calibration and testing.
 
-![Alt text](midterm/Documents/Final-2024_bb.png "Schematic Diagram")
+![Alt text](Midterm/Documents/Final-2024_bb.png "Schematic Diagram")
 
 ## Lessons Learned
 
