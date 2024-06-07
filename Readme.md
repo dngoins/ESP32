@@ -1,4 +1,5 @@
 # Known Neb Circuits
+[Supporting Video](https://youtu.be/zoNuiFG_GVk)
 
 ## Introduction
 
