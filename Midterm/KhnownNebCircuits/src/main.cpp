@@ -10,7 +10,8 @@ Updated: 2024.05.25
 by: Dwight Goins, MCT,RD, Graduate Student
 
 Video Accompanying Project:
-https://youtu.be/ueXpcHeXfcc?si=wkf0O5Zj8lw5V81l
+https://www.youtube.com/watch?v=zoNuiFG_GVk
+
 
 */
 
