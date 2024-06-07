@@ -1,3 +1,8 @@
 {
-    "idf.portWin": "COM6"
+    "idf.portWin": "COM6",
+    "azureFunctions.deploySubpath": "azfunction/bin/Release/net8.0/publish",
+    "azureFunctions.projectLanguage": "C#",
+    "azureFunctions.projectRuntime": "~4",
+    "debug.internalConsoleOptions": "neverOpen",
+    "azureFunctions.preDeployTask": "publish (functions)"
 }

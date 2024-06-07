@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Imagine a home that listens, understands, and responds to your every command. Our Arduino-based smart home project, powered by the ESP microcontroller, transforms this vision into reality. This innovative system seamlessly integrates advanced technology into your everyday life, offering unparalleled convenience and control. By leveraging the power of sensors, microcontrollers, and cloud services, we have created a sophisticated home automation system that showcases the potential of modern technolog
+Imagine a home that listens, understands, and responds to your every command. Our Arduino-based smart home project, powered by the ESP microcontroller, transforms this vision into reality. This innovative system seamlessly integrates advanced technology into your everyday life, offering unparalleled convenience and control. By leveraging the power of sensors, microcontrollers, and cloud services, we have created a sophisticated home automation system that showcases the potential of modern technology
 
 ## Theory of Operation
 
@@ -23,7 +23,7 @@ During development, several challenges emerged. Integrating multiple sensors and
 
 ## Lessons Learned
 
-This project offered invaluable insights into the integration of hardware and software for home automation. We learned the importance of efficient memory management on microcontrollers and the intricacies of establishing reliable network connections. Furthermore, we gained hands-on experience with cloud-based services and their potential to enhance local systems. Troubleshooting and iterative testing underscored the importance of patience and persistence in achieving a seamless operation. one page. Just one more line to make it one page. Maybe few more words. I think that is it. 
+This project offered invaluable insights into the integration of hardware and software for home automation. We learned the importance of efficient memory management on microcontrollers and the intricacies of establishing reliable network connections. Furthermore, we gained hands-on experience with cloud-based services and their potential to enhance local systems. Troubleshooting and iterative testing underscored the importance of patience and persistence in achieving a seamless operation. Also, having multiple copies of components comes in handy. It is inevitable that one component could be wired up incorrectly burning out the component. Having multiple copies of the component allows for quick replacement and continued testing. Also the ESP32 reuses some of its pins for internal functionality, such as the Wifi used pins for the Tx and Rcv functionality and we had to move our connections around because of this. Lastly, having a good understanding of the components being used is crucial. This allows for quick troubleshooting and debugging of the system. 
 
 ## Future Enhancements
 
