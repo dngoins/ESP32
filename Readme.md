@@ -33,3 +33,18 @@ The potential for future enhancements is vast. Integrating additional smart devi
 ## Conclusion
 
 Our smart home system demonstrates the transformative power of technology in enhancing daily life. By combining the Arduino microcontroller, ESP Wi-Fi capabilities, and Azure cloud services, we have created a responsive and intelligent home environment. This project not only showcases the potential of home automation but also inspires further innovation and development in the field. Step into the future with a home that truly understands and responds to your needs, making everyday tasks effortless and enjoyable.
+
+## References
+
+Video Accompanying Project:
+[Supporting Video](https://youtu.be/ueXpcHeXfcc?si=wkf0O5Zj8lw5V81l)
+
+[Mic & Dumb Display](https://www.instructables.com/ESP32-Mic-Testing-With-INMP441-and-DumbDisplay/)
+[Mic library](https://github.com/sheaivey/ESP32-AudioInI2S)
+[Video](https://www.youtube.com/watch?v=m8LwPNXqK9o)
+[Servo Video](https://www.youtube.com/watch?v=ueXpcHeXfcc)
+
+[Azure PubSub](https://learn.microsoft.com/en-us/azure/azure-web-pubsub/key-concepts?WT.mc_id=Portal-Microsoft_Azure_SignalR)
+[Azure Web Pub Sub](https://learn.microsoft.com/en-us/azure/azure-web-pubsub/reference-functions-bindings?tabs=csharp)
+[Azure Language Understanding](https://github.com/MicrosoftLearning/mslearn-ai-language/blob/main/Instructions/Exercises/03-language-understanding.md)
+[Azure Web Pub Sub Tutorial](https://learn.microsoft.com/en-us/azure/azure-web-pubsub/tutorial-serverless-notification?tabs=csharp-isolated-process)
