@@ -1,0 +1,1867 @@
+{
+    "projectFileVersion": "2022-10-01-preview",
+    "stringIndexType": "Utf16CodeUnit",
+    "metadata": {
+        "projectKind": "Conversation",
+        "settings": {
+            "confidenceThreshold": 0,
+            "normalizeCasing": false,
+            "augmentDiacritics": false
+        },
+        "projectName": "KhnownNebCircuits",
+        "multilingual": false,
+        "description": "FAU Final Smart Home IoT Project",
+        "language": "en-us"
+    },
+    "assets": {
+        "projectKind": "Conversation",
+        "intents": [
+            {
+                "category": "None"
+            },
+            {
+                "category": "toggleVoice"
+            },
+            {
+                "category": "turnOn"
+            },
+            {
+                "category": "turnOff"
+            },
+            {
+                "category": "unlock"
+            },
+            {
+                "category": "lock"
+            },
+            {
+                "category": "turnUp"
+            },
+            {
+                "category": "turnDown"
+            }
+        ],
+        "entities": [
+            {
+                "category": "Appliance",
+                "compositionSetting": "combineComponents",
+                "list": {
+                    "sublists": [
+                        {
+                            "listKey": "Speaker",
+                            "synonyms": [
+                                {
+                                    "language": "en-us",
+                                    "values": [
+                                        "Speaker",
+                                        "speaker",
+                                        "radio",
+                                        "music",
+                                        "song"
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "listKey": "Lights",
+                            "synonyms": [
+                                {
+                                    "language": "en-us",
+                                    "values": [
+                                        "Lights",
+                                        "lights",
+                                        "red light",
+                                        "blue light",
+                                        "green light",
+                                        "yellow light"
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "listKey": "Heat",
+                            "synonyms": [
+                                {
+                                    "language": "en-us",
+                                    "values": [
+                                        "Heat",
+                                        "heat",
+                                        "warm up",
+                                        "too cold",
+                                        "freezing"
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "listKey": "AC",
+                            "synonyms": [
+                                {
+                                    "language": "en-us",
+                                    "values": [
+                                        "Air Conditioner",
+                                        "AC",
+                                        "too hot",
+                                        "burning up",
+                                        "cool down",
+                                        "cool off"
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "listKey": "TV",
+                            "synonyms": [
+                                {
+                                    "language": "en-us",
+                                    "values": [
+                                        "TV",
+                                        "tv",
+                                        "watch",
+                                        "movie",
+                                        "channel"
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "listKey": "Stove",
+                            "synonyms": [
+                                {
+                                    "language": "en-us",
+                                    "values": [
+                                        "Stove",
+                                        "stove",
+                                        "cook"
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "listKey": "Fan",
+                            "synonyms": [
+                                {
+                                    "language": "en-us",
+                                    "values": [
+                                        "Fan",
+                                        "fan",
+                                        "feel a breeze",
+                                        "wind",
+                                        "air"
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            },
+            {
+                "category": "Location",
+                "compositionSetting": "combineComponents",
+                "list": {
+                    "sublists": [
+                        {
+                            "listKey": "Bathroom",
+                            "synonyms": [
+                                {
+                                    "language": "en-us",
+                                    "values": [
+                                        "Bathroom",
+                                        "bathroom",
+                                        "bedroom",
+                                        "upstairs",
+                                        "master"
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "listKey": "Patio",
+                            "synonyms": [
+                                {
+                                    "language": "en-us",
+                                    "values": [
+                                        "Patio",
+                                        "patio",
+                                        "outside",
+                                        "porch"
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "listKey": "Garage",
+                            "synonyms": [
+                                {
+                                    "language": "en-us",
+                                    "values": [
+                                        "Garage",
+                                        "garage",
+                                        "basement"
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "listKey": "Kitchen",
+                            "synonyms": [
+                                {
+                                    "language": "en-us",
+                                    "values": [
+                                        "Kitchen",
+                                        "kitchen",
+                                        "stove",
+                                        "fridgerator",
+                                        "breakfast table"
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        ],
+        "utterances": [
+            {
+                "text": "Lock the patio door.",
+                "language": "en-us",
+                "intent": "lock",
+                "entities": [
+                    {
+                        "category": "Location",
+                        "offset": 9,
+                        "length": 5
+                    }
+                ],
+                "dataset": "Train"
+            },
+            {
+                "text": "Lock the porch door",
+                "language": "en-us",
+                "intent": "lock",
+                "entities": [
+                    {
+                        "category": "Location",
+                        "offset": 9,
+                        "length": 5
+                    }
+                ],
+                "dataset": "Train"
+            },
+            {
+                "text": "close the garage door",
+                "language": "en-us",
+                "intent": "lock",
+                "entities": [
+                    {
+                        "category": "Location",
+                        "offset": 10,
+                        "length": 6
+                    }
+                ],
+                "dataset": "Train"
+            },
+            {
+                "text": "turn on bathroom lights",
+                "language": "en-us",
+                "intent": "turnOn",
+                "entities": [
+                    {
+                        "category": "Location",
+                        "offset": 8,
+                        "length": 8
+                    },
+                    {
+                        "category": "Appliance",
+                        "offset": 17,
+                        "length": 6
+                    }
+                ],
+                "dataset": "Train"
+            },
+            {
+                "text": "Turn on Patio Lights",
+                "language": "en-us",
+                "intent": "turnOn",
+                "entities": [
+                    {
+                        "category": "Location",
+                        "offset": 8,
+                        "length": 5
+                    },
+                    {
+                        "category": "Appliance",
+                        "offset": 14,
+                        "length": 6
+                    }
+                ],
+                "dataset": "Train"
+            },
+            {
+                "text": "Turn on Garage lights",
+                "language": "en-us",
+                "intent": "turnOn",
+                "entities": [
+                    {
+                        "category": "Location",
+                        "offset": 8,
+                        "length": 6
+                    },
+                    {
+                        "category": "Appliance",
+                        "offset": 15,
+                        "length": 6
+                    }
+                ],
+                "dataset": "Train"
+            },
+            {
+                "text": "Turn on Kitchen Lights",
+                "language": "en-us",
+                "intent": "turnOn",
+                "entities": [
+                    {
+                        "category": "Location",
+                        "offset": 8,
+                        "length": 7
+                    },
+                    {
+                        "category": "Appliance",
+                        "offset": 16,
+                        "length": 6
+                    }
+                ],
+                "dataset": "Train"
+            },
+            {
+                "text": "Open the lock",
+                "language": "en-us",
+                "intent": "unlock",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Break free the chain",
+                "language": "en-us",
+                "intent": "unlock",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Free up the door",
+                "language": "en-us",
+                "intent": "unlock",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Unseal the door",
+                "language": "en-us",
+                "intent": "unlock",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Release the lock",
+                "language": "en-us",
+                "intent": "unlock",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Chain up the door.",
+                "language": "en-us",
+                "intent": "lock",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Seal the door.",
+                "language": "en-us",
+                "intent": "lock",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Seal the window",
+                "language": "en-us",
+                "intent": "lock",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Place a bar across the door.",
+                "language": "en-us",
+                "intent": "lock",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Put a bolt on the window.",
+                "language": "en-us",
+                "intent": "lock",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Latch the door.",
+                "language": "en-us",
+                "intent": "lock",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Secure the door.",
+                "language": "en-us",
+                "intent": "lock",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Fasten the window",
+                "language": "en-us",
+                "intent": "lock",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Quiet the music",
+                "language": "en-us",
+                "intent": "turnDown",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Dampen the sound",
+                "language": "en-us",
+                "intent": "turnDown",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Minimize the temperature",
+                "language": "en-us",
+                "intent": "turnDown",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Lessen the volume",
+                "language": "en-us",
+                "intent": "turnDown",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Reduce the loudness",
+                "language": "en-us",
+                "intent": "turnDown",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Diminish the noise.",
+                "language": "en-us",
+                "intent": "turnDown",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Boost the heat",
+                "language": "en-us",
+                "intent": "turnUp",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Intensify the fan",
+                "language": "en-us",
+                "intent": "turnUp",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Up the fan",
+                "language": "en-us",
+                "intent": "turnUp",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Up the heat",
+                "language": "en-us",
+                "intent": "turnUp",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Up the volume",
+                "language": "en-us",
+                "intent": "turnUp",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Increase the decibels",
+                "language": "en-us",
+                "intent": "turnUp",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Boost the audio.",
+                "language": "en-us",
+                "intent": "turnUp",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Make it louder",
+                "language": "en-us",
+                "intent": "turnUp",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Louden the music",
+                "language": "en-us",
+                "intent": "turnUp",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Stop it from running",
+                "language": "en-us",
+                "intent": "turnOff",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Put it to sleep",
+                "language": "en-us",
+                "intent": "turnOff",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Halt the process",
+                "language": "en-us",
+                "intent": "turnOff",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Cease operation.",
+                "language": "en-us",
+                "intent": "turnOff",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Kill the engine.",
+                "language": "en-us",
+                "intent": "turnOff",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Shut down the lights",
+                "language": "en-us",
+                "intent": "turnOff",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Power down the system.",
+                "language": "en-us",
+                "intent": "turnOff",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Deactivate the device.",
+                "language": "en-us",
+                "intent": "turnOff",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Commence the function",
+                "language": "en-us",
+                "intent": "turnOn",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Get it running",
+                "language": "en-us",
+                "intent": "turnOn",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Wake up the device",
+                "language": "en-us",
+                "intent": "turnOn",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Launch the process",
+                "language": "en-us",
+                "intent": "turnOn",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Initiate the machine",
+                "language": "en-us",
+                "intent": "turnOn",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Ignite the engine",
+                "language": "en-us",
+                "intent": "turnOn",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Start up the system",
+                "language": "en-us",
+                "intent": "turnOn",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Activate the device.",
+                "language": "en-us",
+                "intent": "turnOn",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Enjoy a party in the park.",
+                "language": "en-us",
+                "intent": "None",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Read a novel in the library",
+                "language": "en-us",
+                "intent": "None",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Take a nap in the afternoon",
+                "language": "en-us",
+                "intent": "None",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Play a board game with friends",
+                "language": "en-us",
+                "intent": "None",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Go for a swim in the pool",
+                "language": "en-us",
+                "intent": "None",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "have a chat over coffee",
+                "language": "en-us",
+                "intent": "None",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Walk the dog",
+                "language": "en-us",
+                "intent": "None",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Practice yoga in the morning",
+                "language": "en-us",
+                "intent": "None",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Sip on some tea",
+                "language": "en-us",
+                "intent": "None",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Stargaze on a clear night",
+                "language": "en-us",
+                "intent": "None",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Play a game of chess.",
+                "language": "en-us",
+                "intent": "None",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Paint a picture of the landscape",
+                "language": "en-us",
+                "intent": "None",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Take a walk in the park",
+                "language": "en-us",
+                "intent": "None",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Write a letter to a friend",
+                "language": "en-us",
+                "intent": "None",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Read a book under the shade.",
+                "language": "en-us",
+                "intent": "None",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Plant a tree in the backyard",
+                "language": "en-us",
+                "intent": "None",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Bake a chocolate cake for desert",
+                "language": "en-us",
+                "intent": "None",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Catch the sunrise at the beach",
+                "language": "en-us",
+                "intent": "None",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Ramp up the Radio",
+                "language": "en-us",
+                "intent": "turnUp",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Enhance the lights",
+                "language": "en-us",
+                "intent": "turnUp",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Augment the sound level",
+                "language": "en-us",
+                "intent": "turnUp",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Intensify the music",
+                "language": "en-us",
+                "intent": "turnUp",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Elevate the music volume",
+                "language": "en-us",
+                "intent": "turnUp",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Increase the temperature",
+                "language": "en-us",
+                "intent": "turnUp",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Boost that sound system",
+                "language": "en-us",
+                "intent": "turnUp",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Amplify the music",
+                "language": "en-us",
+                "intent": "turnUp",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Fire up that stove",
+                "language": "en-us",
+                "intent": "turnOn",
+                "entities": [
+                    {
+                        "category": "Location",
+                        "offset": 13,
+                        "length": 5
+                    }
+                ],
+                "dataset": "Train"
+            },
+            {
+                "text": "Kick-start that Radio",
+                "language": "en-us",
+                "intent": "turnOn",
+                "entities": [
+                    {
+                        "category": "Appliance",
+                        "offset": 16,
+                        "length": 5
+                    }
+                ],
+                "dataset": "Train"
+            },
+            {
+                "text": "Set in motion that TV",
+                "language": "en-us",
+                "intent": "turnOn",
+                "entities": [
+                    {
+                        "category": "Appliance",
+                        "offset": 19,
+                        "length": 2
+                    }
+                ],
+                "dataset": "Train"
+            },
+            {
+                "text": "Get that Radio going",
+                "language": "en-us",
+                "intent": "turnOn",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Boot up that Computer",
+                "language": "en-us",
+                "intent": "turnOn",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Initiate that AC",
+                "language": "en-us",
+                "intent": "turnOn",
+                "entities": [
+                    {
+                        "category": "Appliance",
+                        "offset": 14,
+                        "length": 2
+                    }
+                ],
+                "dataset": "Train"
+            },
+            {
+                "text": "Switch on that TV",
+                "language": "en-us",
+                "intent": "turnOn",
+                "entities": [
+                    {
+                        "category": "Appliance",
+                        "offset": 15,
+                        "length": 2
+                    }
+                ],
+                "dataset": "Train"
+            },
+            {
+                "text": "Power up that TV",
+                "language": "en-us",
+                "intent": "turnOn",
+                "entities": [
+                    {
+                        "category": "Appliance",
+                        "offset": 14,
+                        "length": 2
+                    }
+                ],
+                "dataset": "Train"
+            },
+            {
+                "text": "Start the radio",
+                "language": "en-us",
+                "intent": "turnOn",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Activate that TV",
+                "language": "en-us",
+                "intent": "turnOn",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Unbar the door.",
+                "language": "en-us",
+                "intent": "unlock",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Release the window latch",
+                "language": "en-us",
+                "intent": "unlock",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Unchain the door",
+                "language": "en-us",
+                "intent": "unlock",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Unseal the cabinet",
+                "language": "en-us",
+                "intent": "unlock",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Free up the window",
+                "language": "en-us",
+                "intent": "unlock",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "loosen the door's lock",
+                "language": "en-us",
+                "intent": "unlock",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Unfasten the door",
+                "language": "en-us",
+                "intent": "unlock",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Unbolt the door",
+                "language": "en-us",
+                "intent": "unlock",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Unlatch the door",
+                "language": "en-us",
+                "intent": "unlock",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Disengage the door",
+                "language": "en-us",
+                "intent": "unlock",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Turn that off",
+                "language": "en-us",
+                "intent": "turnOff",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Close that down",
+                "language": "en-us",
+                "intent": "turnOff",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Pull the plug",
+                "language": "en-us",
+                "intent": "turnOff",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Shut that off",
+                "language": "en-us",
+                "intent": "turnOff",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "sound is too distracting",
+                "language": "en-us",
+                "intent": "turnDown",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Lower the volume",
+                "language": "en-us",
+                "intent": "turnDown",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Too noisey",
+                "language": "en-us",
+                "intent": "turnDown",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Make the music less loud",
+                "language": "en-us",
+                "intent": "turnDown",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Minimize the sound",
+                "language": "en-us",
+                "intent": "turnDown",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Stop listening to my conversation",
+                "language": "en-us",
+                "intent": "toggleVoice",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Ok you can hear me now",
+                "language": "en-us",
+                "intent": "toggleVoice",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Start back up listening",
+                "language": "en-us",
+                "intent": "toggleVoice",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Enable microphone",
+                "language": "en-us",
+                "intent": "toggleVoice",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Enable listening",
+                "language": "en-us",
+                "intent": "toggleVoice",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Enable voice",
+                "language": "en-us",
+                "intent": "toggleVoice",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Microphone diabled",
+                "language": "en-us",
+                "intent": "toggleVoice",
+                "entities": [
+                    {
+                        "category": "Appliance",
+                        "offset": 0,
+                        "length": 10
+                    }
+                ],
+                "dataset": "Train"
+            },
+            {
+                "text": "Mute yourself",
+                "language": "en-us",
+                "intent": "toggleVoice",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Go on mute",
+                "language": "en-us",
+                "intent": "toggleVoice",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Pause the listening",
+                "language": "en-us",
+                "intent": "toggleVoice",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Pause the voice",
+                "language": "en-us",
+                "intent": "toggleVoice",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Disable listen",
+                "language": "en-us",
+                "intent": "toggleVoice",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Stop listening to me",
+                "language": "en-us",
+                "intent": "toggleVoice",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Disable the voice feature",
+                "language": "en-us",
+                "intent": "toggleVoice",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Lock all doors and windows.",
+                "language": "en-us",
+                "intent": "lock",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Secure everything when you leave",
+                "language": "en-us",
+                "intent": "lock",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Secure the windows and make sure everything is locked before you leave",
+                "language": "en-us",
+                "intent": "lock",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Make sure the door is locked when you leave",
+                "language": "en-us",
+                "intent": "lock",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "After you leave close and lock the door",
+                "language": "en-us",
+                "intent": "lock",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Shut the bedroom door behind you",
+                "language": "en-us",
+                "intent": "lock",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Lock the bedroom door behind you",
+                "language": "en-us",
+                "intent": "lock",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "I don't feel any air, can you turn up the fan some?",
+                "language": "en-us",
+                "intent": "turnUp",
+                "entities": [
+                    {
+                        "category": "Appliance",
+                        "offset": 17,
+                        "length": 3
+                    },
+                    {
+                        "category": "Appliance",
+                        "offset": 42,
+                        "length": 3
+                    }
+                ],
+                "dataset": "Train"
+            },
+            {
+                "text": "Turn down the fan some.",
+                "language": "en-us",
+                "intent": "turnDown",
+                "entities": [
+                    {
+                        "category": "Appliance",
+                        "offset": 14,
+                        "length": 3
+                    }
+                ],
+                "dataset": "Train"
+            },
+            {
+                "text": "The wind is blowing in my face, please turn off the fan.",
+                "language": "en-us",
+                "intent": "turnOff",
+                "entities": [
+                    {
+                        "category": "Appliance",
+                        "offset": 4,
+                        "length": 4
+                    },
+                    {
+                        "category": "Appliance",
+                        "offset": 52,
+                        "length": 3
+                    }
+                ],
+                "dataset": "Train"
+            },
+            {
+                "text": "It's hot, turn on the Fan.",
+                "language": "en-us",
+                "intent": "turnOn",
+                "entities": [
+                    {
+                        "category": "Appliance",
+                        "offset": 5,
+                        "length": 3
+                    },
+                    {
+                        "category": "Appliance",
+                        "offset": 22,
+                        "length": 3
+                    }
+                ],
+                "dataset": "Train"
+            },
+            {
+                "text": "Can you put the Fan on?",
+                "language": "en-us",
+                "intent": "turnOn",
+                "entities": [
+                    {
+                        "category": "Appliance",
+                        "offset": 15,
+                        "length": 4
+                    }
+                ],
+                "dataset": "Train"
+            },
+            {
+                "text": "That's my song can you turn it up?",
+                "language": "en-us",
+                "intent": "turnUp",
+                "entities": [
+                    {
+                        "category": "Appliance",
+                        "offset": 10,
+                        "length": 4
+                    }
+                ],
+                "dataset": "Train"
+            },
+            {
+                "text": "Can you turn up the AC",
+                "language": "en-us",
+                "intent": "turnUp",
+                "entities": [
+                    {
+                        "category": "Appliance",
+                        "offset": 20,
+                        "length": 2
+                    }
+                ],
+                "dataset": "Train"
+            },
+            {
+                "text": "It's cold in here can you turn up the heat?",
+                "language": "en-us",
+                "intent": "turnUp",
+                "entities": [
+                    {
+                        "category": "Appliance",
+                        "offset": 5,
+                        "length": 4
+                    },
+                    {
+                        "category": "Appliance",
+                        "offset": 38,
+                        "length": 4
+                    }
+                ],
+                "dataset": "Train"
+            },
+            {
+                "text": "Raise the temperature",
+                "language": "en-us",
+                "intent": "turnUp",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "I can't hear the TV, turn it up.",
+                "language": "en-us",
+                "intent": "turnUp",
+                "entities": [
+                    {
+                        "category": "Appliance",
+                        "offset": 17,
+                        "length": 2
+                    }
+                ],
+                "dataset": "Train"
+            },
+            {
+                "text": "I can't hear the speakers are too low, please turn up the music",
+                "language": "en-us",
+                "intent": "turnUp",
+                "entities": [
+                    {
+                        "category": "Appliance",
+                        "offset": 17,
+                        "length": 8
+                    },
+                    {
+                        "category": "Appliance",
+                        "offset": 58,
+                        "length": 5
+                    }
+                ],
+                "dataset": "Train"
+            },
+            {
+                "text": "Turn up the TV",
+                "language": "en-us",
+                "intent": "turnUp",
+                "entities": [
+                    {
+                        "category": "Appliance",
+                        "offset": 12,
+                        "length": 2
+                    }
+                ],
+                "dataset": "Train"
+            },
+            {
+                "text": "Turn down the TV",
+                "language": "en-us",
+                "intent": "turnDown",
+                "entities": [
+                    {
+                        "category": "Appliance",
+                        "offset": 14,
+                        "length": 2
+                    }
+                ],
+                "dataset": "Train"
+            },
+            {
+                "text": "Lower the music",
+                "language": "en-us",
+                "intent": "turnDown",
+                "entities": [
+                    {
+                        "category": "Appliance",
+                        "offset": 10,
+                        "length": 5
+                    }
+                ],
+                "dataset": "Train"
+            },
+            {
+                "text": "Speakers are too loud please turn it down",
+                "language": "en-us",
+                "intent": "turnDown",
+                "entities": [
+                    {
+                        "category": "Appliance",
+                        "offset": 0,
+                        "length": 8
+                    }
+                ],
+                "dataset": "Train"
+            },
+            {
+                "text": "Muisic is too loud please turn down the speakers",
+                "language": "en-us",
+                "intent": "turnDown",
+                "entities": [
+                    {
+                        "category": "Appliance",
+                        "offset": 0,
+                        "length": 7
+                    },
+                    {
+                        "category": "Appliance",
+                        "offset": 40,
+                        "length": 8
+                    }
+                ],
+                "dataset": "Train"
+            },
+            {
+                "text": "Heat is blasting please lower it.",
+                "language": "en-us",
+                "intent": "turnDown",
+                "entities": [
+                    {
+                        "category": "Appliance",
+                        "offset": 0,
+                        "length": 4
+                    }
+                ],
+                "dataset": "Train"
+            },
+            {
+                "text": "AC is blasting please lower it.",
+                "language": "en-us",
+                "intent": "turnDown",
+                "entities": [
+                    {
+                        "category": "Appliance",
+                        "offset": 0,
+                        "length": 2
+                    }
+                ],
+                "dataset": "Train"
+            },
+            {
+                "text": "It's cold can you turn down the AC",
+                "language": "en-us",
+                "intent": "turnDown",
+                "entities": [
+                    {
+                        "category": "Appliance",
+                        "offset": 32,
+                        "length": 2
+                    }
+                ],
+                "dataset": "Train"
+            },
+            {
+                "text": "It's hot can you turn down the heat",
+                "language": "en-us",
+                "intent": "turnDown",
+                "entities": [
+                    {
+                        "category": "Appliance",
+                        "offset": 31,
+                        "length": 4
+                    }
+                ],
+                "dataset": "Train"
+            },
+            {
+                "text": "Please turn down the temperature",
+                "language": "en-us",
+                "intent": "turnDown",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Turn the Music Off",
+                "language": "en-us",
+                "intent": "turnOff",
+                "entities": [
+                    {
+                        "category": "Appliance",
+                        "offset": 9,
+                        "length": 5
+                    }
+                ],
+                "dataset": "Train"
+            },
+            {
+                "text": "Plug in the light switch.",
+                "language": "en-us",
+                "intent": "turnOn",
+                "entities": [
+                    {
+                        "category": "Appliance",
+                        "offset": 12,
+                        "length": 5
+                    }
+                ],
+                "dataset": "Train"
+            },
+            {
+                "text": "Turn the TV on.",
+                "language": "en-us",
+                "intent": "turnOn",
+                "entities": [
+                    {
+                        "category": "Appliance",
+                        "offset": 9,
+                        "length": 2
+                    }
+                ],
+                "dataset": "Train"
+            },
+            {
+                "text": "Please turn on the radio",
+                "language": "en-us",
+                "intent": "turnOn",
+                "entities": [
+                    {
+                        "category": "Appliance",
+                        "offset": 19,
+                        "length": 5
+                    }
+                ],
+                "dataset": "Train"
+            },
+            {
+                "text": "Please turn on the Lights",
+                "language": "en-us",
+                "intent": "turnOn",
+                "entities": [
+                    {
+                        "category": "Appliance",
+                        "offset": 19,
+                        "length": 6
+                    }
+                ],
+                "dataset": "Train"
+            },
+            {
+                "text": "Unplug the Radio",
+                "language": "en-us",
+                "intent": "turnOff",
+                "entities": [
+                    {
+                        "category": "Appliance",
+                        "offset": 11,
+                        "length": 5
+                    }
+                ],
+                "dataset": "Train"
+            },
+            {
+                "text": "Unplug the cable",
+                "language": "en-us",
+                "intent": "turnOff",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Turn off the music",
+                "language": "en-us",
+                "intent": "turnOff",
+                "entities": [
+                    {
+                        "category": "Appliance",
+                        "offset": 13,
+                        "length": 5
+                    }
+                ],
+                "dataset": "Train"
+            },
+            {
+                "text": "Turn off the T.V.",
+                "language": "en-us",
+                "intent": "turnOff",
+                "entities": [
+                    {
+                        "category": "Appliance",
+                        "offset": 13,
+                        "length": 4
+                    }
+                ],
+                "dataset": "Train"
+            },
+            {
+                "text": "turn off the bathroom lights",
+                "language": "en-us",
+                "intent": "turnOff",
+                "entities": [
+                    {
+                        "category": "Location",
+                        "offset": 13,
+                        "length": 8
+                    },
+                    {
+                        "category": "Appliance",
+                        "offset": 22,
+                        "length": 6
+                    }
+                ],
+                "dataset": "Train"
+            },
+            {
+                "text": "Turn off the bedroom lights",
+                "language": "en-us",
+                "intent": "turnOff",
+                "entities": [
+                    {
+                        "category": "Location",
+                        "offset": 13,
+                        "length": 7
+                    },
+                    {
+                        "category": "Appliance",
+                        "offset": 21,
+                        "length": 6
+                    }
+                ],
+                "dataset": "Train"
+            },
+            {
+                "text": "Hit the switch to the kitchen",
+                "language": "en-us",
+                "intent": "turnOff",
+                "entities": [
+                    {
+                        "category": "Appliance",
+                        "offset": 8,
+                        "length": 6
+                    },
+                    {
+                        "category": "Location",
+                        "offset": 22,
+                        "length": 7
+                    }
+                ],
+                "dataset": "Train"
+            },
+            {
+                "text": "Please flip the switch to the lights",
+                "language": "en-us",
+                "intent": "turnOff",
+                "entities": [
+                    {
+                        "category": "Appliance",
+                        "offset": 16,
+                        "length": 6
+                    },
+                    {
+                        "category": "Appliance",
+                        "offset": 30,
+                        "length": 6
+                    }
+                ],
+                "dataset": "Train"
+            },
+            {
+                "text": "Please turn off the lights",
+                "language": "en-us",
+                "intent": "turnOff",
+                "entities": [
+                    {
+                        "category": "Appliance",
+                        "offset": 20,
+                        "length": 6
+                    }
+                ],
+                "dataset": "Train"
+            },
+            {
+                "text": "Cortana start",
+                "language": "en-us",
+                "intent": "toggleVoice",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Alexa start",
+                "language": "en-us",
+                "intent": "toggleVoice",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Cortana stop",
+                "language": "en-us",
+                "intent": "toggleVoice",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Alexa stop",
+                "language": "en-us",
+                "intent": "toggleVoice",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "stop listening",
+                "language": "en-us",
+                "intent": "toggleVoice",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "start listening",
+                "language": "en-us",
+                "intent": "toggleVoice",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Start Voice commands",
+                "language": "en-us",
+                "intent": "toggleVoice",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Stop voice commands",
+                "language": "en-us",
+                "intent": "toggleVoice",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Toggle Voice commands",
+                "language": "en-us",
+                "intent": "toggleVoice",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "unlock the bedroom",
+                "language": "en-us",
+                "intent": "unlock",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Unfasten the latch",
+                "language": "en-us",
+                "intent": "unlock",
+                "entities": [
+                    {
+                        "category": "Appliance",
+                        "offset": 13,
+                        "length": 5
+                    }
+                ],
+                "dataset": "Train"
+            },
+            {
+                "text": "open the car door",
+                "language": "en-us",
+                "intent": "unlock",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "open the windows",
+                "language": "en-us",
+                "intent": "unlock",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Please unlock the door",
+                "language": "en-us",
+                "intent": "unlock",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "lock the master bedroom",
+                "language": "en-us",
+                "intent": "lock",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "lock the bedroom",
+                "language": "en-us",
+                "intent": "lock",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "lock the closet",
+                "language": "en-us",
+                "intent": "lock",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "shut the windows",
+                "language": "en-us",
+                "intent": "lock",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "fasten the cabinets",
+                "language": "en-us",
+                "intent": "lock",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "close the door",
+                "language": "en-us",
+                "intent": "lock",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Secure the door",
+                "language": "en-us",
+                "intent": "lock",
+                "entities": [],
+                "dataset": "Train"
+            },
+            {
+                "text": "Please lock the door.",
+                "language": "en-us",
+                "intent": "lock",
+                "entities": [],
+                "dataset": "Train"
+            }
+        ]
+    }
+}

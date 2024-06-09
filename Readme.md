@@ -1,5 +1,5 @@
 # Known Neb Circuits
-[Supporting Video](https://youtu.be/zoNuiFG_GVk)
+[Supporting Video](https://www.youtube.com/watch?v=FScEjhotFlU)
 
 ## Introduction
 
@@ -37,7 +37,9 @@ Our smart home system demonstrates the transformative power of technology in enh
 ## References
 
 Video Accompanying Project:
-[Supporting Video](https://youtu.be/ueXpcHeXfcc?si=wkf0O5Zj8lw5V81l)
+[Supporting Video](https://youtu.be/ueXpcHeXfcc?si=wkf0O5Zj8lw5V81l) 
+
+[Supporting Video Details](https://www.youtube.com/watch?v=FScEjhotFlU)
 
 [Mic & Dumb Display](https://www.instructables.com/ESP32-Mic-Testing-With-INMP441-and-DumbDisplay/)
 

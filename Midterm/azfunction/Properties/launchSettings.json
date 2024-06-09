@@ -10,7 +10,9 @@
       "CLU_DEPLOYMENT_NAME": "",
       "SPEECH_SUB_KEY": "",
       "SPEECH_REGION": "",
-      "SPEECH_ENDPOINT": ""
+      "SPEECH_ENDPOINT": "",
+      "AZURE_STORAGE_CONNECTION_STRING": "",
+      "SHOULD_WRITE_TO_BLOB": "false"
     }
   }
 }

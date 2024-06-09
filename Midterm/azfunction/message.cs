@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.SignalR.Protocol;
 using System;
 using Microsoft.Extensions.Azure;
 using Azure.Storage.Blobs;
+using NAudio.Codecs;
 
 namespace azfunction
 {
@@ -45,6 +46,8 @@ namespace azfunction
         
         private static int currentFrameCount = 0;
         private BlobServiceClient blobServiceClient;
+        private TaskCompletionSource<int> stopRecognition;
+        private bool WriteToBlobStorage = false;
 
         public message(ILogger<message> logger)
         {
@@ -56,6 +59,8 @@ namespace azfunction
             
             CLU_ProjectName = Environment.GetEnvironmentVariable("CLU_PROJECT_NAME");
             CLU_DeploymentName = Environment.GetEnvironmentVariable("CLU_DEPLOYMENT_NAME");
+
+            bool.TryParse(Environment.GetEnvironmentVariable("SHOULD_WRITE_TO_BLOB"), out WriteToBlobStorage);
 
             Uri clu_endpoint = new Uri(predictionEndpoint);
             AzureKeyCredential credential = new AzureKeyCredential(predictionKey);
@@ -88,28 +93,28 @@ namespace azfunction
                 // Append the incoming audio data to the buffer.
                 var binaryData = request.Data;
                 byte[] audioData = binaryData.ToArray();
-                
-                audioBuffer.Write(audioData, 0, audioData.Length);
+
+                audioBuffer.Write(audioData);
+
                 currentFrameCount++;
 
                 //_logger.LogInformation($"Binary message data");
 
+                // lets just send in the audio as it comes in
                 var now = DateTime.UtcNow;
-                if (Math.Abs ((now - lastReceived).TotalSeconds ) > 10)
-                {
-                    _logger.LogInformation($"Processing audio data: {currentFrameCount}");
+                if ((Math.Abs ((now - lastReceived).TotalSeconds ) > 4) && (currentFrameCount > 10))
+                {                    
+                    _logger.LogInformation($"Processing audio data frame count: {currentFrameCount}");
                     currentFrameCount = 0;
                     // More than 8 seconds have passed since the last chunk of audio data was received.
                     // Process the buffered audio data here.
                     var result =  ProcessAudioData(audioBuffer.ToArray(), request);
 
-                    
-                        // Clear the buffer.
-                        // audioBuffer.Position = 0;
-                        audioBuffer.SetLength(0);
-                        lastReceived = now;
-                        return result;
-                    
+                    // Clear the buffer.
+                    audioBuffer.Position = 0;
+                    audioBuffer.SetLength(0);                    
+                    lastReceived = now;
+                    return result;                    
                 }
 
                 return null;
@@ -117,6 +122,33 @@ namespace azfunction
             else
             {
                 _logger.LogInformation($"Request message data: {request.Data}");
+
+                var command = request.Data.ToString().ToLower();
+                if (command == "stop")
+                {
+                    _logger.LogInformation("Stopping Recognition");
+                    if (stopRecognition != null)
+                    {
+                        var stopped = stopRecognition.TrySetResult(0);
+                        if (stopped)
+                        {
+                            _logger.LogInformation("Recognition Stopped");
+                        }
+                    }
+                    return null;
+                }
+
+                var prefix = command.Substring(0, 4);
+                if ( prefix == "clu:")
+                {
+                    // strip off prefix
+                    var text = command.Substring(4);
+                    _logger.LogInformation($"Text: {text}");
+
+                    // send to CLU
+                    return CLU_IntentAction(text, request);
+                }
+
                 TopIntent = new List<string>();
                 TopIntent.Add(request.Data.ToString());
                 TopIntent.Add("");
@@ -129,21 +161,35 @@ namespace azfunction
                 DataType = WebPubSubDataType.Text
             };
         }
-
+      
         private SendToAllAction ProcessAudioData(byte[] audioData, UserEventRequest request)
-        {               
-                _logger.LogInformation($"Audio data length: {audioData.Length}");
-            var resampledaudioData = ResampleAudioStream(audioData, true);
+        {
+            // get the audioBuffer length
+            var audioBufferLength = audioBuffer.Length;
+            //_logger.LogInformation($"Audio data length: {audioData.Length}");
+            //byte[] encoded = new byte[audioBufferLength / 2];
+            //for (int i = 0; i < audioData.Length; i += 2)
+            //{
+            //    short sample = BitConverter.ToInt16(audioData, i);
+            //    encoded[i / 2] = ALawEncoder.LinearToALawSample(sample);
+            //}
+
+
+
+            // now create a wav file from the audioBuffer
+            var resampledAudioData = ResampleAudioStream(audioData, WriteToBlobStorage);
                 _logger.LogInformation("Audio has been resampled");
 
-                if (resampledaudioData != null)
+
+                if (resampledAudioData != null)
                 {
                     //Console.Write("Audio is not null");
                     _logger.LogInformation($"Transcribing Audio Stream");
-                RecognitionWithPushAudioStreamAsync(resampledaudioData, resampledaudioData.Length).GetAwaiter().GetResult();
+                RecognitionWithPushAudioStreamAsync(resampledAudioData, resampledAudioData.Length).GetAwaiter().GetResult();
                 }
                                 
                 var transcribedText = recognizedText.ToString();
+
 
             if (string.IsNullOrEmpty(transcribedText))
             {
@@ -152,15 +198,21 @@ namespace azfunction
             }   
 
             _logger.LogInformation($"Transcription: {transcribedText}");
+            return CLU_IntentAction(transcribedText, request);
+        }
 
-                _logger.LogInformation($"Now let's call Conversation Language Understanding Azure AI Services to get the top intent");
-                TopIntent = GetTopIntentAndEntitiesAsync(transcribedText).GetAwaiter().GetResult();
+        private SendToAllAction CLU_IntentAction(string transcribedText, UserEventRequest request)
+        {
+            _logger.LogInformation($"Now let's call Conversation Language Understanding Azure AI Services to get the top intent");
+            TopIntent = GetTopIntentAndEntitiesAsync(transcribedText).GetAwaiter().GetResult();
 
-                while (TopIntent.Count < 2)
-                {
-                    TopIntent.Add("");
-                }
-                          
+
+            while (TopIntent.Count < 2)
+            {
+                TopIntent.Add("");
+            }
+
+            recognizedText.Clear();
 
             _logger.LogInformation($"Top Intent: {TopIntent[0]}");
             return new SendToAllAction
@@ -168,8 +220,8 @@ namespace azfunction
                 Data = BinaryData.FromString($"[{request.ConnectionContext.UserId}] {TopIntent[0]} {TopIntent[1]}"),
                 DataType = WebPubSubDataType.Text
             };
+            
         }
-
         private async Task<List<string>> GetTopIntentAndEntitiesAsync(string transcribedText)
         {
             List<string> results = new List<string>();
@@ -177,6 +229,7 @@ namespace azfunction
             if (string.IsNullOrEmpty(transcribedText))
             {
                 results.Add("Nothing recognized");
+                //stopRecognition.TrySetResult(0);
                 return results;
             }
 
@@ -245,6 +298,7 @@ namespace azfunction
             {
                 _logger.LogError(message: $"Error Occurred: {ex.Message}");
             }
+           // stopRecognition.TrySetResult(0);
             return results;
         }
         /// <summary>
@@ -258,13 +312,26 @@ namespace azfunction
             byte[] resampledBytes = null;
             try
             {
-                var filePath = "";
                 var fileName = string.Format("~{0}-{1}.wav", "iot", DateTime.Now.ToString("yyyyMMdd_hhmmss"));
-                var tempFolder = Path.GetTempPath();
+                var fileNameOrig = fileName.Replace ("~","~orig-");
+
+                var copyOrigBytes = new byte[audioChunk.Length - 1];
+                Array.Copy(audioChunk, copyOrigBytes, audioChunk.Length - 1);
+                audioChunk = copyOrigBytes;
+
+                // Get a reference to a blob
+                BlobContainerClient containerClientOrig = blobServiceClient.GetBlobContainerClient("fau-iot");
+                BlobClient blobClientOrig = containerClientOrig.GetBlobClient(fileNameOrig);
+
+                // Open a stream and upload its data
+                using (MemoryStream stream = new MemoryStream(copyOrigBytes))
+                {
+                    blobClientOrig.Upload(stream, true);
+                }
 
                 using (MemoryStream ms = new MemoryStream(audioChunk))
                 {
-                    using (var rs = new RawSourceWaveStream(ms, new WaveFormat(44100, 32, 1)))
+                    using (var rs = new RawSourceWaveStream(ms, new WaveFormat(16000, 16, 1)))
                     {
                         var outputFormat = new WaveFormat(16000, 16, 1);
                         var inputProvider = new RawSourceWaveStream(ms, rs.WaveFormat);
@@ -294,7 +361,7 @@ namespace azfunction
                                 }
                             }
                         }
-                        _logger.LogInformation($"Resampled Audio File: {filePath}");
+                        _logger.LogInformation($"Resampled Audio File: {fileName}");
                     }
                 }
             }
@@ -324,7 +391,7 @@ namespace azfunction
             try
             {
 
-                var stopRecognition = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
+                stopRecognition =  new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
 
                 // Create a push stream
                 using (var pushStream = AudioInputStream.CreatePushStream())
@@ -352,67 +419,67 @@ namespace azfunction
                             //phraseList.AddPhrase("Toggle Voice");
 
                             // Subscribes to events.
-                            //recognizer.Recognizing += (s, e) =>
-                            //{
-                            //    _logger.LogInformation($"RECOGNIZING: Text={e.Result.Text}");
-                            //};
+                            recognizer.Recognizing += (s, e) =>
+                            {
+                                _logger.LogInformation($"RECOGNIZING: Text={e.Result.Text}");
+                            };
 
-                            //recognizer.Recognized += (s, e) =>
-                            //{
-                            //    if (e.Result.Reason == ResultReason.RecognizedSpeech)
-                            //    {
-                            //        //var bestResults = e.Result.Best();
-                            //        //if (bestResults != null)
-                            //        //{
-                            //        //    foreach (var best in bestResults)
-                            //        //    {
-                            //        //        if (best.Confidence >= confidenceFactor)
-                            //        //        {
-                            //        //            recognizedText.Append(best.Text);
-                            //        //        }
-                            //        //    }
-                            //        //}   
-                            //        //else
-                            //        //{
-                            //        recognizedText.Append(e.Result.Text);
-                            //        //}
-                            //        _logger.LogInformation($"{e.Result.Text} ");
+                            recognizer.Recognized += (s, e) =>
+                            {
+                                if (e.Result.Reason == ResultReason.RecognizedSpeech)
+                                {
+                                    //var bestResults = e.Result.Best();
+                                    //if (bestResults != null)
+                                    //{
+                                    //    foreach (var best in bestResults)
+                                    //    {
+                                    //        if (best.Confidence >= confidenceFactor)
+                                    //        {
+                                    //            recognizedText.Append(best.Text);
+                                    //        }
+                                    //    }
+                                    //}   
+                                    //else
+                                    //{
+                                    recognizedText.Append(e.Result.Text);
+                                    //}
+                                    _logger.LogInformation($"{e.Result.Text} ");
 
-                            //    }
-                            //    else if (e.Result.Reason == ResultReason.NoMatch)
-                            //    {
-                            //        _logger.LogInformation($"NOMATCH: Speech could not be recognized.");
-                            //    }
-                            //};
+                                }
+                                else if (e.Result.Reason == ResultReason.NoMatch)
+                                {
+                                    _logger.LogInformation($"NOMATCH: Speech could not be recognized.");
+                                }
+                            };
 
-                            //recognizer.Canceled += (s, e) =>
-                            //{
-                            //    _logger.LogInformation($"CANCELED: Reason={e.Reason}");
+                            recognizer.Canceled += (s, e) =>
+                            {
+                                _logger.LogInformation($"CANCELED: Reason={e.Reason}");
 
-                            //    if (e.Reason == CancellationReason.Error)
-                            //    {
-                            //        _logger.LogInformation($"\nCANCELED: ErrorCode={e.ErrorCode} - Details={e.ErrorDetails}");
-                            //        //_logger.LogInformation($"CANCELED: ErrorDetails={e.ErrorDetails}");
-                            //        //_logger.LogInformation($"CANCELED: Did you update the subscription info?");
-                            //    }
+                                if (e.Reason == CancellationReason.Error)
+                                {
+                                    _logger.LogInformation($"\nCANCELED: ErrorCode={e.ErrorCode} - Details={e.ErrorDetails}");
+                                    //_logger.LogInformation($"CANCELED: ErrorDetails={e.ErrorDetails}");
+                                    //_logger.LogInformation($"CANCELED: Did you update the subscription info?");
+                                }
 
-                            //    stopRecognition.TrySetResult(0);
-                            //};
+                                stopRecognition.TrySetResult(0);
+                            };
 
-                            //recognizer.SessionStarted += (s, e) =>
-                            //{
-                            //    _logger.LogInformation("\nSession started event.");
-                            //    // if session is still going wait until stopped to get remaining audio chunks
-                            //};
+                            recognizer.SessionStarted += (s, e) =>
+                            {
+                                _logger.LogInformation("\nSession started event.");
+                                // if session is still going wait until stopped to get remaining audio chunks
+                            };
 
-                            //recognizer.SessionStopped += (s, e) =>
-                            //{
-                            //    _logger.LogInformation("\nSession stopped event.");
-                            //    //_logger.LogInformation("\nStop recognition.");
-                            //    // stopRecognition.TrySetResult(0);
-                            //    //_logger.LogInformation("\nStop Reason: " + e);
-                            //    stopRecognition.TrySetResult(0);
-                            //};
+                            recognizer.SessionStopped += (s, e) =>
+                            {
+                                _logger.LogInformation("\nSession stopped event.");
+                                //_logger.LogInformation("\nStop recognition.");
+                                // stopRecognition.TrySetResult(0);
+                                //_logger.LogInformation("\nStop Reason: " + e);
+                                stopRecognition.TrySetResult(0);
+                            };
 
                             // open and read the wave file and push the buffers into the recognizer
                             using (BinaryAudioStreamReader reader = new BinaryAudioStreamReader(new MemoryStream(audioBuffer, 0, audioBufferLength)))
@@ -434,30 +501,39 @@ namespace azfunction
 
                             // Starts single recognition. It will stop after the first utterance is recognized.
                             _logger.LogInformation("Starting Transcribing.");
-                            var result = await recognizer.RecognizeOnceAsync();
+                            //var result = await recognizer.RecognizeOnceAsync();
+                            
+                            await recognizer.StartContinuousRecognitionAsync().ConfigureAwait(false);
 
+                            await Task.WhenAll(stopRecognition.Task).ConfigureAwait(false);
+
+                            await recognizer.StopContinuousRecognitionAsync().ConfigureAwait(false);
+
+                            
                             // Check the result
-                            if (result.Reason == ResultReason.RecognizedSpeech)
-                            {
-                                _logger.LogInformation($"We recognized: {result.Text}");
-                                recognizedText.Append(result.Text);
-                            }
-                            else if (result.Reason == ResultReason.NoMatch)
-                            {
-                                _logger.LogInformation($"NOMATCH: Speech could not be recognized.");
-                            }
-                            else if (result.Reason == ResultReason.Canceled)
-                            {
-                                var cancellation = CancellationDetails.FromResult(result);
-                                _logger.LogInformation($"CANCELED: Reason={cancellation.Reason}");
+                            //if (result.Reason == ResultReason.RecognizedSpeech)
+                            //{                                
+                            //    _logger.LogInformation($"We recognized: {result.Text}");
+                            //    recognizedText.Append(result.Text);
+                            //}
+                            //else if (result.Reason == ResultReason.NoMatch)
+                            //{
+                            //    NoMatchDetails details = NoMatchDetails.FromResult(result);                                
+                            //    _logger.LogInformation($"NOMATCH: Speech could not be recognized. Details: {details}");
+                                
+                            //}
+                            //else if (result.Reason == ResultReason.Canceled)
+                            //{
+                            //    var cancellation = CancellationDetails.FromResult(result);
+                            //    _logger.LogInformation($"CANCELED: Reason={cancellation.Reason}");
 
-                                if (cancellation.Reason == CancellationReason.Error)
-                                {
-                                    _logger.LogInformation($"CANCELED: ErrorCode={cancellation.ErrorCode}");
-                                    _logger.LogInformation($"CANCELED: ErrorDetails={cancellation.ErrorDetails}");
+                            //    if (cancellation.Reason == CancellationReason.Error)
+                            //    {
+                            //        _logger.LogInformation($"CANCELED: ErrorCode={cancellation.ErrorCode}");
+                            //        _logger.LogInformation($"CANCELED: ErrorDetails={cancellation.ErrorDetails}");
 
-                                }
-                            }
+                            //    }
+                            //}
 
 
                         }
